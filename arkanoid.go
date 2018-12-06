@@ -5,7 +5,6 @@ import (
 	"image"
 	"os"
     _ "image/png"
-
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
     "golang.org/x/image/colornames"
@@ -57,18 +56,39 @@ func run() {
             block3.Draw(win, pixel.IM.Moved(pixel.V(y, 525)))
             block3.Draw(win, pixel.IM.Moved(pixel.V(y+50, 500)))
         }
+
+        if win.Pressed(pixelgl.KeyRight){
+            plankx+=2.5
+        }
+        if win.Pressed(pixelgl.KeyLeft){
+            plankx-=2.5
+        }
         plank.Draw(win, pixel.IM.Moved(pixel.V(plankx,20)))
 
-
         ball.Draw(win, pixel.IM.Moved(pixel.V(ballx,bally)))
+        bally+=1
 
-
-        
-
-	
         win.Update()
 
 	}
+}
+
+func loadPicture(path string) (pixel.Picture, error) {
+	file, err := os.Open(path)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+	img, _, err := image.Decode(file)
+	if err != nil {
+		return nil, err
+	}
+	return pixel.PictureDataFromImage(img), nil
+}
+
+func main() {
+    pixelgl.Run(run)
+}
 }
 
 func loadPicture(path string) (pixel.Picture, error) {
