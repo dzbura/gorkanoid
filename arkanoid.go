@@ -43,7 +43,7 @@ func run() {
     block3 := pixel.NewSprite(spritesheet, blockFrames[3])
     ballV := pixel.V(512.0, 60.0)
     plankx:=512.0
-    motion := pixel.V(0,1)
+    motion := pixel.V(0,2)
 
 	for !win.Closed() {
         win.Clear(colornames.Turquoise)
@@ -58,53 +58,61 @@ func run() {
             block3.Draw(win, pixel.IM.Moved(pixel.V(y+50, 500)))
         }
 
+        plank.Draw(win, pixel.IM.Moved(pixel.V(plankx, 20)))
+        ball.Draw(win, pixel.IM.Moved(ballV))
+
         if win.Pressed(pixelgl.KeyRight){
             plankx+=2.5
         }
         if win.Pressed(pixelgl.KeyLeft){
             plankx-=2.5
         }
-        plank.Draw(win, pixel.IM.Moved(pixel.V(plankx, 20)))
 
-
-        ball.Draw(win, pixel.IM.Moved(ballV))
         ballx, bally := ballV.XY()
-        if bally == 0 {
-            ballV = pixel.V(512.0, 60.0)
-            motion = pixel.V(0,1)
-        }
+
         if bally == 768 {
-            if motion == pixel.V(1,1){
-                motion = pixel.V(1,-1) 
+            if motion == pixel.V(2,2){
+                motion = pixel.V(2,-2) 
             }  
-            if motion == pixel.V(-1,1){
-                motion = pixel.V(-1,-1) 
+            if motion == pixel.V(-2,2){
+                motion = pixel.V(-2,-2) 
             }
-            if motion == pixel.V(0,1){
-                motion = pixel.V(1,-1)
+            if motion == pixel.V(0,2){
+                motion = pixel.V(2,-2)
             }                  
         }
         if ballx == 0 {
-            if motion == pixel.V(-1,1){
-                motion = pixel.V(1,1) 
+            if motion == pixel.V(-2,2){
+                motion = pixel.V(2,2) 
             }  
-            if motion == pixel.V(-1,-1){
-                motion = pixel.V(1,-1) 
+            if motion == pixel.V(-2,-2){
+                motion = pixel.V(2,-2) 
             }  
         }
         if ballx == 1024 {
-            if motion == pixel.V(1,1){
-                motion = pixel.V(-1,1) 
+            if motion == pixel.V(2,2){
+                motion = pixel.V(-2,2) 
             }  
-            if motion == pixel.V(1,-1){
-                motion = pixel.V(-1,-1) 
+            if motion == pixel.V(2,-2){
+                motion = pixel.V(-2,-2) 
             }  
+        }
+        if bally == 36 && ballx < plankx+100 && ballx > plankx-100 {
+            if motion == pixel.V(2,-2){
+                motion = pixel.V(2, 2)
+            }
+            if motion == pixel.V(-2,-2){
+                motion = pixel.V(-2,2)
+            }
+        }
+        if bally == 0 {
+            ballV = pixel.V(512.0, 60.0)
+            motion = pixel.V(0,2)
         }
 
         ballV = ballV.Add(motion)
 
         win.Update()
-
 	}
 }
 
