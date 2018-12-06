@@ -5,6 +5,7 @@ import (
 	"image"
 	"os"
     _ "image/png"
+
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
     "golang.org/x/image/colornames"
@@ -40,9 +41,9 @@ func run() {
     block1 := pixel.NewSprite(spritesheet, blockFrames[1])
     block2 := pixel.NewSprite(spritesheet, blockFrames[2])
     block3 := pixel.NewSprite(spritesheet, blockFrames[3])
-    bally:=60.0
-    ballx:=512.0
+    ballV := pixel.V(512.0, 60.0)
     plankx:=512.0
+    motion := pixel.V(0,1)
 
 	for !win.Closed() {
         win.Clear(colornames.Turquoise)
@@ -63,10 +64,44 @@ func run() {
         if win.Pressed(pixelgl.KeyLeft){
             plankx-=2.5
         }
-        plank.Draw(win, pixel.IM.Moved(pixel.V(plankx,20)))
+        plank.Draw(win, pixel.IM.Moved(pixel.V(plankx, 20)))
 
-        ball.Draw(win, pixel.IM.Moved(pixel.V(ballx,bally)))
-        bally+=1
+
+        ball.Draw(win, pixel.IM.Moved(ballV))
+        ballx, bally := ballV.XY()
+        if bally == 0 {
+            ballV = pixel.V(512.0, 60.0)
+            motion = pixel.V(0,1)
+        }
+        if bally == 768 {
+            if motion == pixel.V(1,1){
+                motion = pixel.V(1,-1) 
+            }  
+            if motion == pixel.V(-1,1){
+                motion = pixel.V(-1,-1) 
+            }
+            if motion == pixel.V(0,1){
+                motion = pixel.V(1,-1)
+            }                  
+        }
+        if ballx == 0 {
+            if motion == pixel.V(-1,1){
+                motion = pixel.V(1,1) 
+            }  
+            if motion == pixel.V(-1,-1){
+                motion = pixel.V(1,-1) 
+            }  
+        }
+        if ballx == 1024 {
+            if motion == pixel.V(1,1){
+                motion = pixel.V(-1,1) 
+            }  
+            if motion == pixel.V(1,-1){
+                motion = pixel.V(-1,-1) 
+            }  
+        }
+
+        ballV = ballV.Add(motion)
 
         win.Update()
 
@@ -89,22 +124,3 @@ func loadPicture(path string) (pixel.Picture, error) {
 func main() {
     pixelgl.Run(run)
 }
-}
-
-func loadPicture(path string) (pixel.Picture, error) {
-	file, err := os.Open(path)
-	if err != nil {
-		return nil, err
-	}
-	defer file.Close()
-	img, _, err := image.Decode(file)
-	if err != nil {
-		return nil, err
-	}
-	return pixel.PictureDataFromImage(img), nil
-}
-
-func main() {
-    pixelgl.Run(run)
-}
-
