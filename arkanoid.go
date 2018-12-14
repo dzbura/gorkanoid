@@ -12,6 +12,7 @@ import (
     "github.com/faiface/pixel/text"
     "fmt"
     "golang.org/x/image/font/basicfont"
+    "strconv"
 )
 
 func run() {
@@ -33,8 +34,10 @@ func run() {
 	}
     
     basicAtlas := text.NewAtlas(basicfont.Face7x13, text.ASCII)
-    basicTxt := text.New(pixel.V(100, 500), basicAtlas)
-    fmt.Fprintln(basicTxt, "GORKANOID")
+    titleTxt := text.New(pixel.V(100, 520), basicAtlas)
+    scoreTxt := text.New(pixel.V(250, 535), basicAtlas)
+    fmt.Fprintln(titleTxt, "GORKANOID")
+
 
 
     var blockFrames []pixel.Rect
@@ -44,10 +47,10 @@ func run() {
 
     ball := pixel.NewSprite(spritesheet, pixel.R(0,0,50,50))
     plank := pixel.NewSprite(spritesheet, pixel.R(0,50,215,75))
-    block0 := pixel.NewSprite(spritesheet, blockFrames[0])
-    block1 := pixel.NewSprite(spritesheet, blockFrames[1])
+    //block0 := pixel.NewSprite(spritesheet, blockFrames[0])
+    //block1 := pixel.NewSprite(spritesheet, blockFrames[1])
     block2 := pixel.NewSprite(spritesheet, blockFrames[2])
-    block3 := pixel.NewSprite(spritesheet, blockFrames[3])
+    //block3 := pixel.NewSprite(spritesheet, blockFrames[3])
     ballV := pixel.V(512.0, 60.0)
     plankx:=512.0
     motion := pixel.V(0,2)
@@ -61,26 +64,26 @@ func run() {
             blocksV = append(blocksV, pixel.V(x+50, 550))
             blocksV = append(blocksV, pixel.V(x, 525))
             blocksV = append(blocksV, pixel.V(x+50, 500))
-        }
+    }
     score := 0
     highScore := 0
+
+
 	for !win.Closed() {
         win.Clear(colornames.Turquoise)
-        for x := float64(50); x < 1000; x +=100 {
-            block0.Draw(win, pixel.IM.Moved(pixel.V(x, 675)))
-            block0.Draw(win, pixel.IM.Moved(pixel.V(x+50, 650)))
-            block1.Draw(win, pixel.IM.Moved(pixel.V(x, 625)))
-            block1.Draw(win, pixel.IM.Moved(pixel.V(x+50, 600)))
-            block2.Draw(win, pixel.IM.Moved(pixel.V(x, 575)))
-            block2.Draw(win, pixel.IM.Moved(pixel.V(x+50, 550)))
-            block3.Draw(win, pixel.IM.Moved(pixel.V(x, 525)))
-            block3.Draw(win, pixel.IM.Moved(pixel.V(x+50, 500)))
+        scoreTxt.Clear()
+        fmt.Fprintln(scoreTxt, "THE SCORE.")
+        fmt.Fprintln(scoreTxt, "Score:" + strconv.Itoa(score))
+        fmt.Fprintln(scoreTxt, "High score" + strconv.Itoa(highScore))
+        for x:=0; x<len(blocksV); x+=1 {
+            block2.Draw(win, pixel.IM.Moved(blocksV[x]))       
         }
 
 
         plank.Draw(win, pixel.IM.Moved(pixel.V(plankx, 20)))
         ball.Draw(win, pixel.IM.Moved(ballV))
-        basicTxt.Draw(win, pixel.IM.Moved(pixel.V(20,200)))
+        titleTxt.Draw(win, pixel.IM.Moved(pixel.V(20,200)))
+        scoreTxt.Draw(win, pixel.IM.Moved(pixel.V(20,200)))
         if win.Pressed(pixelgl.KeyRight){
             plankx+=2.5
         }
@@ -132,17 +135,19 @@ func run() {
             score = 0
         } else {
    
-            for y:=0; y<79; y+=1{
+            for y:=0; y<len(blocksV); y+=1{
                 blockx, blocky := blocksV[y].XY()
                 if ballx-15 == blockx+35 && blocky+7>bally && bally>blocky-7{
                     if motion == pixel.V(-2,-2){
                         motion = pixel.V(2,-2)
                         score += 10
+                        blocksV = removeV(blocksV, y)
                         break
                     }
                     if motion == pixel.V(-2,2){
                         motion = pixel.V(2,2)
                         score += 10
+                        blocksV = removeV(blocksV, y)
                         break
                     }
                 }
@@ -150,62 +155,61 @@ func run() {
                     if motion == pixel.V(2,2){
                         motion = pixel.V(-2,2)
                         score += 10
+                        blocksV = removeV(blocksV, y)
                         break
                     }
                     if motion == pixel.V(2,-2){
                         motion = pixel.V(-2,-2)
                         score += 10
+                        blocksV = removeV(blocksV, y)
                         break
                     }
                 }
-                if bally+15 == blocky-7{
+                if bally+15 == blocky-7 && ballx >= blockx-35 && blockx+35 >= ballx{
                     if motion == pixel.V(0, 2){
                         motion = pixel.V(2, -2)
                         score += 10
+                        blocksV = removeV(blocksV, y)
                         break
                     }
                     if motion == pixel.V(-2,2){
                         motion = pixel.V(-2,-2)
                         score += 10
+                        blocksV = removeV(blocksV, y)
                         break
                     }
                     if motion == pixel.V(2,2){
                         motion = pixel.V(2,-2)
                         score += 10
+                        blocksV = removeV(blocksV, y)
                         break
                     }
                 }
-                if bally-15 == blocky+7{
+                if bally-15 == blocky+7 && ballx >= blockx-35 && blockx+35 >= ballx{
                     if motion == pixel.V(-2,-2){
                         motion = pixel.V(-2,2)
                         score += 10
+                        blocksV = removeV(blocksV, y)
                         break
                     }
                     if motion == pixel.V(2,-2){
                         motion = pixel.V(2,2)
                         score += 10
+                        blocksV = removeV(blocksV, y)
                         break
                     }
                 }
-            
             }
-
         }
-        
-
-
         ballV = ballV.Add(motion)
-
         win.Update()
-
 	}
-    //fmt.Println(blocksV)
-    fmt.Println("Score")
-    fmt.Println(score)
-    fmt.Println("High Score")
-    fmt.Println(highScore)
 }
 
+func removeV(list []pixel.Vec, indexV int) []pixel.Vec {
+    list[indexV] = list[len(list)-1]
+    return list[:len(list)-1]
+}
 
 func loadPicture(path string) (pixel.Picture, error) {
 	file, err := os.Open(path)
