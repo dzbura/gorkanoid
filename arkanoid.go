@@ -165,7 +165,7 @@ func run() {
                         break
                     }
                 }
-                if bally+15 == blocky-7 && ballx >= blockx-35 && blockx+35 >= ballx{
+		if (bally+15 == blocky-7 || bally+15 == blocky-6) && ballx >= blockx-35 && blockx+35 >= ballx{
                     if motion == pixel.V(0, 2){
                         motion = pixel.V(2, -2)
                         score += 10
@@ -185,7 +185,7 @@ func run() {
                         break
                     }
                 }
-                if bally-15 == blocky+7 && ballx >= blockx-35 && blockx+35 >= ballx{
+                if (bally-15 == blocky+7 || bally-15 == blocky+6) && ballx >= blockx-35 && blockx+35 >= ballx{
                     if motion == pixel.V(-2,-2){
                         motion = pixel.V(-2,2)
                         score += 10
